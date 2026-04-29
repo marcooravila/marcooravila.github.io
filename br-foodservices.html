@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Reconciliation · B&R Food Services · Marco Ravila</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0e14;
+    --surface:   #111720;
+    --surface2:  #161e2a;
+    --surface3:  #1c2535;
+    --border:    #1e2d3d;
+    --border2:   #243447;
+    --accent:    #00d4aa;
+    --accent2:   #ff6b35;
+    --accent3:   #7c3aed;
+    --warn:      #f59e0b;
+    --danger:    #ef4444;
+    --green:     #3fb950;
+    --text:      #cdd9e5;
+    --text-dim:  #5a7a96;
+    --text-bright: #e6edf3;
+    --cell-bg:   #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .nb-header {
+    border-bottom: 1px solid var(--border);
+    padding: 32px 48px 24px;
+    background: var(--surface);
+  }
+
+  .nb-header .tag-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+
+  .tag.orange { color: var(--accent2); border-color: var(--accent2); }
+  .tag.purple { color: var(--accent3); border-color: var(--accent3); }
+
+  .nb-header h1 {
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .nb-header .subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .meta-row span strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .meta-row span strong.orange { color: var(--accent2); }
+  .meta-row span strong.warn   { color: var(--warn); }
+  .meta-row span strong.green  { color: var(--green); }
+
+  /* ── LAYOUT ── */
+  .nb-body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 56px 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.01em;
+  }
+
+  .section-header h2 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  /* ── CELL ── */
+  .cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .cell-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .badge {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .badge.markdown { background: #1a3a2a; color: var(--green); }
+  .badge.output   { background: #1a2a3a; color: #58a6ff; }
+  .badge.insight  { background: #2a1f0a; color: var(--warn); }
+  .badge.rec      { background: #1f1a2e; color: var(--accent3); }
+
+  .cell-label span {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .cell-body {
+    padding: 24px 28px;
+  }
+
+  /* ── PROSE ── */
+  .prose h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .prose p {
+    color: var(--text);
+    margin-bottom: 12px;
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+
+  .prose p strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .prose p strong.orange { color: var(--accent2); }
+  .prose p strong.warn   { color: var(--warn); }
+  .prose p strong.danger { color: var(--danger); }
+  .prose p strong.green  { color: var(--green); }
+
+  /* ── INSIGHT BOX ── */
+  .insight-box {
+    background: #1a150a;
+    border: 1px solid #3d2f0a;
+    border-left: 3px solid var(--warn);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.65;
+  }
+
+  .insight-box .icon {
+    color: var(--warn);
+    margin-right: 6px;
+  }
+
+  .insight-box strong {
+    color: var(--warn);
+    font-weight: 700;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 600px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+  }
+
+  .kpi-card {
+    background: var(--cell-bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .kpi-card.cyan::before   { background: var(--accent); }
+  .kpi-card.orange::before { background: var(--accent2); }
+  .kpi-card.danger::before { background: var(--danger); }
+  .kpi-card.warn::before   { background: var(--warn); }
+  .kpi-card.green::before  { background: var(--green); }
+
+  .kpi-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .kpi-card.cyan   .kpi-value { color: var(--accent); }
+  .kpi-card.orange .kpi-value { color: var(--accent2); }
+  .kpi-card.danger .kpi-value { color: var(--danger); }
+  .kpi-card.warn   .kpi-value { color: var(--warn); }
+  .kpi-card.green  .kpi-value { color: var(--green); }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  .data-table th {
+    background: var(--surface3);
+    color: var(--text-dim);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table tr:hover td {
+    background: var(--surface2);
+  }
+
+  .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .dot.orange { background: var(--accent2); }
+  .dot.danger { background: var(--danger); }
+  .dot.warn   { background: var(--warn); }
+  .dot.green  { background: var(--green); }
+  .dot.purple { background: var(--accent3); }
+
+  .td-type {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .num-pill {
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    color: var(--text-bright);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  .impact-val {
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .impact-val.danger { color: var(--danger); }
+  .impact-val.warn   { color: var(--warn); }
+  .impact-val.green  { color: var(--green); }
+  .impact-val.dim    { color: var(--text-dim); }
+
+  /* ── DECISIONS LIST ── */
+  .decision-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .decision-item {
+    background: var(--cell-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 16px 20px;
+  }
+
+  .decision-item.orange { border-left-color: var(--accent2); }
+  .decision-item.purple { border-left-color: var(--accent3); }
+  .decision-item.warn   { border-left-color: var(--warn); }
+
+  .decision-num {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .decision-item.orange .decision-num { color: var(--accent2); }
+  .decision-item.purple .decision-num { color: var(--accent3); }
+  .decision-item.warn   .decision-num { color: var(--warn); }
+
+  .decision-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .decision-body {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .decision-body strong { color: var(--accent); font-weight: 600; }
+  .decision-item.orange .decision-body strong { color: var(--accent2); }
+  .decision-item.purple .decision-body strong { color: var(--accent3); }
+  .decision-item.warn   .decision-body strong { color: var(--warn); }
+
+  /* ── RECS ── */
+  .rec-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .rec-item {
+    background: var(--cell-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .rec-num {
+    width: 36px; height: 36px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent3);
+    flex-shrink: 0;
+  }
+
+  .rec-content h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .rec-content p {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.65;
+  }
+
+  /* ── TECH GRID ── */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .tech-grid { grid-template-columns: 1fr; }
+  }
+
+  .tech-item {
+    background: var(--cell-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .tech-sheet {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .tech-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ── STACK PILLS ── */
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .stack-pill {
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* ── LINK ── */
+  .demo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-top: 20px;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+  }
+
+  .demo-link:hover { opacity: 0.85; }
+
+  /* ── FOOTER ── */
+  .nb-footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    background: var(--surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .nb-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .nb-header { animation: fadeUp 0.5s ease both; }
+  .cell      { animation: fadeUp 0.5s ease both; }
+
+  .cell:nth-child(1)  { animation-delay: 0.05s; }
+  .cell:nth-child(2)  { animation-delay: 0.10s; }
+  .cell:nth-child(3)  { animation-delay: 0.15s; }
+  .cell:nth-child(4)  { animation-delay: 0.20s; }
+
+  .section-header { animation: fadeUp 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="nb-header">
+  <div class="tag-row">
+    <span class="tag">Accounts Payable</span>
+    <span class="tag orange">Portfolio Project</span>
+    <span class="tag purple">2025</span>
+  </div>
+  <h1>AP Reconciliation · B&amp;R Food Services</h1>
+  <p class="subtitle">Reconciliación de Cuentas por Pagar — Detección y Clasificación de Discrepancias OC vs Factura</p>
+  <div class="meta-row">
+    <span>Registros: <strong>46 SKUs</strong></span>
+    <span>Varianza detectada: <strong class="orange">$3,393 USD</strong></span>
+    <span>Industria: <strong class="warn">Distribución / Food Service</strong></span>
+    <span>Stack: <strong>Excel</strong> · <strong>Google Sheets</strong> · <strong class="green">Business Rules</strong></span>
+    <span>Tipo: <strong>Caso Real</strong></span>
+  </div>
+</header>
+
+<!-- ══ BODY ════════════════════════════════════════════════════════════════ -->
+<main class="nb-body">
+
+  <!-- ── 00 BUSINESS CONTEXT ── -->
+  <div class="section-header">
+    <span class="section-num">00</span>
+    <h2>Business Context / <em>Contexto de Negocio</em></h2>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge markdown">Markdown</span>
+      <span>Impact first · Impacto primero</span>
+    </div>
+    <div class="cell-body prose">
+      <h3>The Impact · El Impacto</h3>
+      <p>
+        Identified and classified <strong>$3,393</strong> in financial discrepancies between a purchase order and a vendor invoice,
+        auditing <strong>46 SKUs</strong> in under 24 hours. The result was a reusable model that prevents incorrect payments
+        and standardizes the AP reconciliation process for any future cycle — without external tools or advanced technical knowledge.
+      </p>
+      <p>
+        Se identificaron y clasificaron discrepancias financieras por <strong>$3,393</strong> entre una orden de compra y
+        una factura de proveedor, auditando <strong>46 SKUs</strong> en menos de 24 horas. El resultado es un modelo reutilizable
+        que previene pagos incorrectos y estandariza el proceso de reconciliación para cualquier ciclo futuro.
+      </p>
+      <div class="insight-box">
+        <span class="icon">⚡</span>
+        <strong>Insight:</strong> A net variance of <strong class="warn">$3,393</strong> on a <strong>$7,133</strong> invoice represents
+        47.6% of the total billed amount — not a rounding error, but a structural reconciliation failure that would have gone undetected without a line-by-line audit model.
+      </div>
+    </div>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge markdown">Markdown</span>
+      <span>Business questions · Preguntas de negocio</span>
+    </div>
+    <div class="cell-body prose">
+      <h3>Business Questions · Preguntas de Negocio</h3>
+      <p style="margin-bottom:10px;">Four questions guided the analysis:</p>
+      <ol style="padding-left:20px; display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text);">
+        <li><span style="color:var(--accent); font-weight:700;">1.</span> &nbsp;Which line items were billed with incorrect quantities vs. the original PO?</li>
+        <li><span style="color:var(--accent); font-weight:700;">2.</span> &nbsp;Which items were invoiced but never ordered — unauthorized charges?</li>
+        <li><span style="color:var(--accent); font-weight:700;">3.</span> &nbsp;Which items were ordered but not reflected in the invoice — pending deliveries?</li>
+        <li><span style="color:var(--accent); font-weight:700;">4.</span> &nbsp;What is the total financial exposure and recommended corrective action per discrepancy type?</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ── 01 THE PROBLEM ── -->
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>The Problem / <em>El Problema</em></h2>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge markdown">Markdown</span>
+      <span>Problem statement</span>
+    </div>
+    <div class="cell-body prose">
+      <p>
+        <strong>B&amp;R Food Services</strong>, a food service supply distribution company, received an invoice from vendor
+        <strong>Wellcare International</strong> for <strong class="orange">$7,133</strong> against a purchase order of
+        <strong class="green">$10,527</strong>. The gap of <strong class="danger">$3,393</strong> was not self-explanatory.
+      </p>
+      <p>
+        Without a structured model, the AP team would need to manually review 46 line items with no traceability,
+        no risk classification, and no documented process. The real risk: approving a payment with errors, generating ERP
+        inconsistencies, and having zero visibility into vendor error patterns over time.
+      </p>
+      <p>
+        Sin un modelo estructurado, el equipo de Cuentas por Pagar tendría que revisar 46 líneas manualmente, sin trazabilidad,
+        sin clasificación de riesgo y sin proceso documentado. Riesgo real: aprobar un pago incorrecto y no detectar
+        patrones de error por proveedor.
+      </p>
+    </div>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge output">Output</span>
+      <span>KPI Summary — Financial Exposure</span>
+    </div>
+    <div class="cell-body">
+      <div class="kpi-grid">
+        <div class="kpi-card green">
+          <div class="kpi-label">Total OC / Purchase Order</div>
+          <div class="kpi-value">$10,527</div>
+          <div class="kpi-sub">46 SKUs ordered</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-label">Total Factura / Invoice</div>
+          <div class="kpi-value">$7,133</div>
+          <div class="kpi-sub">32 SKUs billed</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-label">Varianza Neta / Net Variance</div>
+          <div class="kpi-value">$3,393</div>
+          <div class="kpi-sub">47.6% of invoice total</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 02 ANALYTICAL DECISIONS ── -->
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>Analytical Decisions / <em>Decisiones de Criterio</em></h2>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge markdown">Markdown</span>
+      <span>Human judgment over automation · Criterio humano sobre automatización</span>
+    </div>
+    <div class="cell-body">
+      <div class="decision-list">
+
+        <div class="decision-item">
+          <div class="decision-num">Decision 01 · Decisión 01</div>
+          <div class="decision-title">Classify into 4 categories, not just flag differences</div>
+          <div class="decision-body">
+            Most basic models only flag whether a difference exists. I classified each discrepancy into a specific category
+            because each one requires a <strong>different corrective action</strong>: quantity mismatch → credit memo;
+            price mismatch → renegotiation; unauthorized charge → rejection; missing delivery → follow-up.
+            Without this distinction, the AP team does not know what to do with each line.
+          </div>
+        </div>
+
+        <div class="decision-item orange">
+          <div class="decision-num">Decision 02 · Decisión 02</div>
+          <div class="decision-title">Separate real errors from authorized adjustments</div>
+          <div class="decision-body">
+            Item <strong>WC-HC66W</strong> showed a higher quantity than ordered. An automated model would have flagged it as an error.
+            I documented that the extra quantity was <strong>internally approved by management</strong>, preventing a false positive
+            that could have triggered an unnecessary vendor dispute.
+          </div>
+        </div>
+
+        <div class="decision-item warn">
+          <div class="decision-num">Decision 03 · Decisión 03</div>
+          <div class="decision-title">Question prices that make no operational sense</div>
+          <div class="decision-body">
+            Knife <strong>WCKE305W</strong> appeared on the invoice at <strong>$51.50</strong> when the agreed PO price was <strong>$11.00</strong>.
+            A 4.5x difference on a basic consumable is not a price change — it is a <strong>vendor data entry error</strong>.
+            That distinction changes the action entirely: not renegotiation, but immediate correction before releasing payment.
+          </div>
+        </div>
+
+        <div class="decision-item purple">
+          <div class="decision-num">Decision 04 · Decisión 04</div>
+          <div class="decision-title">Design for adoption, not to impress</div>
+          <div class="decision-body">
+            I chose <strong>Excel / Google Sheets</strong> because the AP team already operates in that environment.
+            A Python or SQL model would have required intermediaries to run it every cycle.
+            The tool needs to live where the problem lives — <strong>immediate adoption, zero learning curve</strong>.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 03 FINDINGS ── -->
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Findings / <em>Hallazgos</em></h2>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge output">Output</span>
+      <span>Line-by-line reconciliation summary · Resumen de reconciliación</span>
+    </div>
+    <div class="cell-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tipo / Type</th>
+            <th style="text-align:center;">Items</th>
+            <th>Impacto / Impact</th>
+            <th>Acción / Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="td-type"><span class="dot orange"></span>Cantidad incorrecta / Quantity mismatch</div></td>
+            <td style="text-align:center;"><span class="num-pill">3</span></td>
+            <td><span class="impact-val warn">Sobrefacturación</span></td>
+            <td style="font-size:12px; color:var(--text-dim);">Solicitar nota de crédito</td>
+          </tr>
+          <tr>
+            <td><div class="td-type"><span class="dot orange"></span>Precio unitario incorrecto / Price mismatch</div></td>
+            <td style="text-align:center;"><span class="num-pill">6</span></td>
+            <td><span class="impact-val warn">Inconsistencia ERP</span></td>
+            <td style="font-size:12px; color:var(--text-dim);">Corrección antes del pago</td>
+          </tr>
+          <tr>
+            <td><div class="td-type"><span class="dot danger"></span>Item facturado no ordenado / Unauthorized charge</div></td>
+            <td style="text-align:center;"><span class="num-pill">2</span></td>
+            <td><span class="impact-val danger">$214.50</span></td>
+            <td style="font-size:12px; color:var(--text-dim);">Rechazar cargo</td>
+          </tr>
+          <tr>
+            <td><div class="td-type"><span class="dot warn"></span>Item ordenado no facturado / Pending delivery</div></td>
+            <td style="text-align:center;"><span class="num-pill">7</span></td>
+            <td><span class="impact-val warn">$2,978.50</span></td>
+            <td style="font-size:12px; color:var(--text-dim);">Seguimiento de entrega</td>
+          </tr>
+          <tr>
+            <td><div class="td-type"><span class="dot green"></span>Sin discrepancia / No discrepancy</div></td>
+            <td style="text-align:center;"><span class="num-pill">28</span></td>
+            <td><span class="impact-val dim">—</span></td>
+            <td style="font-size:12px; color:var(--text-dim);">Sin acción requerida</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="insight-box" style="margin-top:16px;">
+        <span class="icon">⚡</span>
+        <strong>Key finding:</strong> Item <strong class="warn">WCKE305W</strong> was invoiced at $51.50 vs. $11.00 agreed price —
+        a 4.5x discrepancy on a basic consumable flagged as a data entry error, not a price change.
+        Item <strong class="warn">WC-PW93</strong> does not appear in the original PO — likely a substitution for WC-PW83,
+        requiring written confirmation before payment.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 04 RECOMMENDATIONS ── -->
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>Business Recommendations / <em>Recomendaciones al Negocio</em></h2>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge rec">Recommendations</span>
+      <span>Actionable — Accionables</span>
+    </div>
+    <div class="cell-body">
+      <div class="rec-list">
+        <div class="rec-item">
+          <div class="rec-num">01</div>
+          <div class="rec-content">
+            <h4>Do not release payment until critical discrepancies are resolved</h4>
+            <p>The 2 items billed without a PO and the 3 with quantity errors represent charges that should not be paid
+            without a vendor credit memo. No liberar el pago hasta obtener nota de crédito.</p>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">02</div>
+          <div class="rec-content">
+            <h4>Confirm whether WC-PW83 was substituted by WC-PW93</h4>
+            <p>The vendor invoiced a different SKU than what was ordered. Without written confirmation,
+            payment for that item remains in dispute. Confirmar sustitución por escrito antes de pagar.</p>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">03</div>
+          <div class="rec-content">
+            <h4>Implement this model as the standard AP control</h4>
+            <p>Manual line-by-line review every cycle is not scalable. This model automates the reconciliation:
+            paste the ERP export, the cross-reference runs automatically, and follow-up is documented in the same file.
+            Estandarizar como control previo al pago en cada ciclo de AP.</p>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">04</div>
+          <div class="rec-content">
+            <h4>Use the history log to audit vendor error patterns over time</h4>
+            <p>The accumulated history enables detection of whether a vendor systematically makes errors in price or quantity —
+            high-value intelligence for future negotiations. Usar el historial para detectar patrones y negociar condiciones.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 05 TECHNICAL DETAIL ── -->
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Technical Detail / <em>Detalle Técnico</em></h2>
+  </div>
+
+  <div class="cell">
+    <div class="cell-label">
+      <span class="badge output">Output</span>
+      <span>Model architecture · Arquitectura del modelo</span>
+    </div>
+    <div class="cell-body">
+      <p style="font-size:13px; color:var(--text); margin-bottom:16px;">
+        The final model has <strong style="color:var(--accent);">7 sheets</strong> with
+        <strong style="color:var(--accent);">419 active formulas</strong> and 0 errors.
+        Built in Excel / Google Sheets for immediate adoption by the AP team.
+      </p>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <div class="tech-sheet">Instrucciones</div>
+          <div class="tech-desc">Step-by-step usage guide with color legend for every discrepancy type.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-sheet">Entrada OC / Entrada Factura</div>
+          <div class="tech-desc">Standardized input tables for ERP exports. Supports up to 200 SKUs per reconciliation.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-sheet">Reconciliacion</div>
+          <div class="tech-desc">Automated line-by-line cross-reference with business rule classification and contextual notes per item.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-sheet">Seguimiento</div>
+          <div class="tech-desc">Discrepancy tracking with status dropdown (Pending / Under review / Credit memo requested / Resolved), owner, and deadline.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-sheet">Historial</div>
+          <div class="tech-desc">Cumulative log by PO and vendor for traceability and long-term pattern detection.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-sheet">Dashboard</div>
+          <div class="tech-desc">Formula-driven KPIs: Total PO, Total Invoice, Net Variance, and summary by discrepancy type. Auto-updates on new data.</div>
+        </div>
+      </div>
+      <div class="stack-row">
+        <span class="stack-pill">Excel / Google Sheets</span>
+        <span class="stack-pill">SUMIF · COUNTIF · IFERROR</span>
+        <span class="stack-pill">Business Rule Classification</span>
+        <span class="stack-pill">Data Validation (Dropdowns)</span>
+        <span class="stack-pill">Conditional Formatting</span>
+        <span class="stack-pill">419 Active Formulas</span>
+      </div>
+      <a class="demo-link" href="https://docs.google.com/spreadsheets" target="_blank">
+        ↗ Ver modelo interactivo / View interactive model
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════════════ -->
+<footer class="nb-footer">
+  <span>Marco Ravila · Data Analytics &amp; BI Portfolio · 2025</span>
+  <span><a href="index.html">← Back to Portfolio</a></span>
+</footer>
+
+</body>
+</html>
